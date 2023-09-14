@@ -83,6 +83,44 @@ https://esphome.io/guides/getting_started_command_line.html.
 
    Ensure that your Chhavi device is on the same network as the computer you are using to access the Dashboard.
 
+## User Interfaces
+
+1. Display Version
+
+    • To display the firmware version of the Chhavi sensor
+
+    • The current firmware version of the Chhavi sensor will be displayed
+
+2. Enroll Fingerprint
+
+    • To enroll a fingerprint with a unique template ID
+
+    • Press the "Enroll" button to start the fingerprint enrollment process.
+    
+    • Once successfully enrolled, the template ID will be associated with the fingerprint.
+
+3. Scan and Match Fingerprint
+
+    • To scan and match a fingerprint and retrieve the associated template ID:
+    
+    • Click on the "Scan and Match " interface.
+    
+    • Place your finger on the sensor.
+    
+    • The system will scan and attempt to match your fingerprint with stored fingerprints.
+    
+    • If a match is found, the corresponding template ID will be displayed on Template number entity.
+
+4. Delete Stored Fingerprints
+
+    • To delete all stored fingerprints:
+    
+    • Click on the "Delete Stored Fingerprints" button.
+    
+    • All stored fingerprints will be removed from the system.
+    
+    • All Deleted entity will return 1 on successful deletion or 0 on unsuccessful deletion.
+
 ## Additional Resources
 
 •	For hardware resources, such as design files and schematics, refer to our crowd-supply campaign page once active.
