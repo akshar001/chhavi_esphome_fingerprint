@@ -1,0 +1,146 @@
+# external_components:
+#   - source:
+#       type: local
+#       path: custom_components
+#     components:
+#       fingerprint_chhavi
+
+esphome:
+  name: fingerprint_chhavi
+  friendly_name: fingerprint_chhavi
+  includes:
+    "custom_components/fingerprint_chhavi/fingerprint_chhavi.h"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+    version: 4.4.5
+
+web_server:
+  port: 80
+  
+logger:
+  level: DEBUG
+
+# sensor:
+#   - platform: fingerprint_chhavi
+#     Enroll:
+#       name: Enroll_Sensor
+#     Version:
+#       name: Version_Sensor
+#     Delete:
+#       name: Delete_Sensor
+#     Match:
+#       name: Match_Sensor
+# Enable Home Assistant API
+api:
+  password: "chhavi"
+  port: 6053
+  encryption:
+    key: "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs="
+  services:
+  # - service: enroll
+  #   variables:
+  #     finger_id: int
+  #     num_scans: int
+  #   then:
+  #     - fingerprint_chhavi_enroll:
+  # - service: identify_finger
+  #   then:
+  #     - fingerprint_chhavi_identify: {}
+  - service: version
+    then:
+  #     - fingerprint_chhavi_version: {}
+  # - service: wait_for_finger
+  #   then:
+  #     - fingerprint_chhavi_wait_for_finger: {}
+  # - service: version
+  #   variables:
+  #     version: string
+
+
+  #     - text_sensor.template.publish:
+  #         id: fingerprint_state
+  #         state: !lambda 'return version;'
+
+ota:
+  password: "29cd5745fd9440bdb1a550cc95240b0a"
+
+wifi:
+  ssid: "OnePlus 10 Pro 5G"
+  password: "JerryTom"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Fingerprint-Chhavi"
+    password: "P15cXg73rGUe"
+
+spi:
+ - id: spi_bus
+   clk_pin: GPIO14
+   mosi_pin: GPIO13
+   miso_pin: GPIO12
+
+# binary_sensor:
+#  - platform: fingerprint_chhavi
+#    name: fingerprint enrolling
+
+sensor:
+  - platform: fingerprint_chhavi
+    Chhavi_version:
+      name: Version
+      accuracy_decimals: 1
+    on_finger_scan_matched:
+      name: Template Number
+      accuracy_decimals: 1
+    Delete_All:
+      name: All Deleted
+      accuracy_decimals: 0
+   
+button:
+  - platform: template
+    name: Enroll
+    on_press:
+      - lambda: |-
+          extern bool button_pressed;
+          button_pressed = true;
+  - platform: template 
+    name: Scan and Match
+    on_press:
+      - lambda: |-
+          extern bool scan_pressed;
+          scan_pressed = true; 
+  - platform: template 
+    name: Delete All
+    on_press:
+      - lambda: |-
+          extern bool delete_pressed;
+          delete_pressed = true; 
+
+text_sensor:
+  - platform: template
+    # name: fingerprint_chhavi
+    id: fingerprint_state
+
+
+fingerprint_chhavi:
+  spi_id: spi_bus
+  cs_pin: GPIO15
+  on_finger_scan_matched:
+    text_sensor.template.publish:
+      id: fingerprint_state
+      state: "Matched template"
+  on_enrollment_scan:
+    text_sensor.template.publish:
+      id: fingerprint_state
+      state: "Finger scanned"
+  Delete_All:
+    text_sensor.template.publish:
+      id: fingerprint_state
+      state: "Templates removed"
+  Chhavi_version:
+    text_sensor.template.publish:
+      id: fingerprint_state
+      state: "Version"
+
