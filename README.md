@@ -18,8 +18,45 @@ Before you begin, ensure you have the following prerequisites:
 
 ## Setting Up
 
-Download ESPHome : 
-If you haven't already, you need to download and install ESPHome on your development computer. You can follow the installation instructions for your specific platform from the official ESPHome documentation: 
+Prerequisites:
+
+Before you begin, make sure you have the following prerequisites:
+Python installed on your computer.
+
+To verify it check python version using following command.
+```bash
+python --version
+```
+
+Installation Steps
+
+Step 1: Clone the ESPHome Repository.
+You can download ESPHome by cloning the official GitHub repository:
+
+```bash
+git clone https://github.com/esphome/esphome.git
+```
+
+Step 2: Complete the Installation
+Navigate to the downloaded esphome folder and run the following command to install ESPHome:
+
+```bash
+cd esphome
+python setup.py install
+```
+
+Step 3: Verify Installation
+To confirm that ESPHome is installed correctly, check the version. It should be something like:
+    Version: 2023.9.0-dev (or greater 2023.10.0-dev)
+
+You can check the ESPHome version by running the following command:
+```bash
+esphome version
+```
+
+Additional Resources
+For more detailed information and troubleshooting, please visit the official ESPHome documentation.
+
 https://esphome.io/guides/getting_started_command_line.html.
 
 ## Running Chhavi Sensor with ESPHome
@@ -28,12 +65,18 @@ https://esphome.io/guides/getting_started_command_line.html.
 
     • Open the fingerprint-chhavi.yaml file in a text editor.
 
-    • Configure the following details in the YAML file
-        WiFi credentials (SSID and password) 
-
-    • Configuration settings for the Chhavi sensor, including pins, communication settings, and any additional options required for your         specific use case.
+    • Configuration settings for the Chhavi sensor, including pins, communication settings, and any additional options required for your specific use case.
 
     • Refer to the ESPHome documentation for sensor configuration for guidance.
+   
+    • Configure the following details in the YAML file
+        WiFi credentials (SSID and password) 
+```bash
+     wifi:
+        ssid: "OnePlus 10 Pro 5G"
+        password: "JerryTom
+```
+    
 
 2. Compile the Configuration:
 
