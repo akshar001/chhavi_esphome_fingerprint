@@ -15,6 +15,7 @@ Before you begin, ensure you have the following prerequisites:
 2. Computer: A Computer with ESPHome installed
 3. USB cable: A USB cable for connecting the development board to your computer
 4. Basic knowledge of ESPHome
+5. Raspberry Pi board
 
 ## Setting Up
 
@@ -164,6 +165,71 @@ https://esphome.io/guides/getting_started_command_line.html.
     
     • All Deleted entity will return 1 on successful deletion or 0 on unsuccessful deletion.
 
+##  Raspberry Pi Setup for Home assistant server 
+
+Follow these steps to set up Raspberry Pi for home automation:
+
+1. Download and install Raspberry Pi Imager.
+2. Insert an SD card and open Raspberry Pi Imager.
+3. Select the home assistant operating system from other operating systems and flash it to the SD card.(path: home assistant and home automation ->home assistant-> select raspberry pi board )
+4. Click "Write" to flash the Raspberry Pi OS Lite image to the SD card.
+5. Eject the SD card from your computer and insert it into your Raspberry Pi.
+6. Power on the Raspberry Pi and set up the Home Assistant server.
+7. Access the server using the provided link.
+    http://homeassistant.local:8123/
+
+## Uploading Project Binaries to ESP32 
+
+For Windows:
+
+1. Download and install ESP Flash Tool from the official website.
+    For windows : https://www.espressif.com/en/support/download/other-tools
+2. Select the ESP32 chip and type 'develop'.
+3. Upload three binary files with specific addresses.
+    partitions.bin :  0x8000
+	bootloader.bin : 0x1000
+	firmware.bin : 0x10000
+4. Choose the appropriate COM port and baud rate 460800.
+5. Initiate the upload process.
+
+For Linux:
+
+1. Download the ESP-IDF from the provided link.
+    ->https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/linux-macos-setup.html#get-started-get-esp-idf
+2. Validate the installation by checking the version of ESP-IDF using the idf.py version command.
+3. Execute the provided command with the necessary parameters to upload the binaries to the Chhavi device.
+   ```bash
+    esptool.py -p /dev/ttyUSB1 -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x1000 bootloader.bin 0x8000 partition-table.bin 0x10000 firmware.bin
+   ```
+   
+5. After successful flash you can see logs using following commands in esphome.
+Navigate to esphome directory .
+    esphome logs fingerprint-chhavi.yaml 
+	
+
+## Activating Soft-AP in Chhavi
+
+After the firmware upload, the Chhavi device will activate its own fallback hotspot. Follow these steps to configure the Soft-AP:
+
+1. Connect to the "fingerprint-chhavi" Wi-Fi network using the password "CHHAVIVEGG".
+2. Access the Chhavi web configuration page using the IP address "192.168.4.1".
+3. Provide your Wi-Fi credentials in the designated fields to connect Chhavi to your home network.
+
+## Integrating Chhavi with Home Assistant
+
+To integrate Chhavi with the Home Assistant server, ensure that both devices are on the same network. Follow these steps for seamless integration:
+
+1. After setting up home assistant server uploading firmware to chhavi now by accessing home assistant web page you can see that your device will be discovered by home assistant. 
+(You need to use same network connection for your home assistant server and device otherwise device will not be visible on server)
+
+2. After discovery when you select device one dialogue box will be popped up for entering encryption key and password.
+    encryption key : "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs="
+    password: "chhavi"
+
+3. Alternatively you can manually add device by going to settings-> add integration -> select esphome -> add device -> add ip as fingerprint-chhavi.local and port is as it is. (6053)
+
+4. After that you will be needed to add all of its entity to dashboard.These entity will be visible on dashboard now you can access it and give command to device .
+   
 ## Additional Resources
 
 •	For hardware resources, such as design files and schematics, refer to our crowd-supply campaign page once active.
