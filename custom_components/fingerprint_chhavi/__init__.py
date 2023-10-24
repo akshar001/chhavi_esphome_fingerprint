@@ -253,7 +253,7 @@ async def to_code(config):
 
     add_idf_sdkconfig_option("CONFIG_SPI_MASTER_ISR_IN_IRAM", True)
     add_idf_sdkconfig_option("CONFIG_SPI_SLAVE_ISR_IN_IRAM", True)
-    add_idf_sdkconfig_option("CONFIG_ESP_TASK_WDT", True)
+    #add_idf_sdkconfig_option("CONFIG_ESP_TASK_WDT", True)
     # for conf in config.get(CONF_ON_FINGER_SCAN_MATCHED, []):
     #     trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
     #     await automation.build_automation(

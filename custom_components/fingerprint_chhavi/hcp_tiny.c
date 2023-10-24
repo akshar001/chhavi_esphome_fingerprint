@@ -19,7 +19,7 @@
 #include "fpc_crc.h"
 #include "hcp_tiny.h"
 #include "bmlite_if_callbacks.h"
-// #define DEBUG 1
+#define DEBUG 1
 #ifdef DEBUG
 #include <stdio.h>
 #include <stdlib.h>
@@ -151,7 +151,7 @@ fpc_bep_result_t bmlite_tranceive(HCP_comm_t *hcp_comm)
     bep_result = bmlite_send(hcp_comm);
      #ifdef DEBUG
                  LOG_DEBUG("before if= %d\n",bep_result);
-        #endif
+    #endif
     if (bep_result == FPC_BEP_RESULT_OK) 
     {
         bep_result = bmlite_receive(hcp_comm);

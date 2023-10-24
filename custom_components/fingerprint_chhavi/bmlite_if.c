@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 //  */
-//  #define DEBUG 
+ #define DEBUG 
 #include "hcp_tiny.h"
 #include "bmlite_if.h"
 #include "bmlite_hal.h"
 #include "bmlite_if_callbacks.h"
 #include <stdio.h>
+#include "soc/rtc_wdt.h"
 #ifdef DEBUG
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +29,7 @@
 #endif
 
 
-#define MAX_CAPTURE_ATTEMPTS 15U;
+#define MAX_CAPTURE_ATTEMPTS 15;
 #define MAX_SINGLE_CAPTURE_ATTEMPTS 3
 #define CAPTURE_TIMEOUT 3000
 
@@ -66,33 +67,43 @@ fpc_bep_result_t bep_enroll_finger(HCP_comm_t *chain)
     /* Enroll start */
     exit_if_err(bmlite_send_cmd(chain, CMD_ENROLL, ARG_START));
     
-    for (uint8_t i = 0; i < 15; ++i) {
+    for (uint8_t i = 0; i < 15 && !enroll_done; ++i) {
 
          LOG_DEBUG("-> FPC - Enrollcapture Started.");
         bep_result = bep_capture(chain, CAPTURE_TIMEOUT);
          LOG_DEBUG("-> FPC - Enrollcapture Finished.");
-
-        if (bep_result != FPC_BEP_RESULT_OK) {
-            continue;
-        }
-       LOG_DEBUG("after 1");
-        /* Enroll add */
+         if (bep_result == FPC_BEP_RESULT_OK) {
         bep_result = bmlite_send_cmd(chain, CMD_ENROLL, ARG_ADD);
-        if (bep_result != FPC_BEP_RESULT_OK) {
-            continue;
+        if (bep_result == FPC_BEP_RESULT_OK) {
+            bmlite_get_arg(chain, ARG_COUNT);
+            samples_remaining = *(uint32_t *)chain->arg.data;
+            if (samples_remaining == 0U) {
+                enroll_done = true;
+            }
+            sensor_wait_finger_not_present(chain, 0);
         }
-        LOG_DEBUG("after");
-        bmlite_get_arg(chain, ARG_COUNT);
-        samples_remaining = *(uint32_t *)chain->arg.data;
-    //    LOG_DEBUG("Enroll samples remaining: %d\n", samples_remaining);
+    }
+    //     if (bep_result != FPC_BEP_RESULT_OK) {
+    //         continue;
+    //     }
+    //    LOG_DEBUG("after 1");
+    //     /* Enroll add */
+    //     bep_result = bmlite_send_cmd(chain, CMD_ENROLL, ARG_ADD);
+    //     if (bep_result != FPC_BEP_RESULT_OK) {
+    //         continue;
+    //     }
+    //     LOG_DEBUG("after");
+    //     bmlite_get_arg(chain, ARG_COUNT);
+    //     samples_remaining = *(uint32_t *)chain->arg.data;
+    // //    LOG_DEBUG("Enroll samples remaining: %d\n", samples_remaining);
 
-        /* Break enrolling if we can't collect enough correct images for enroll*/
-        if (samples_remaining == 0U) {
-            enroll_done = true;
-            break;
-        }
-         LOG_DEBUG("after if");
-        sensor_wait_finger_not_present(chain, 0);
+    //     /* Break enrolling if we can't collect enough correct images for enroll*/
+    //     if (samples_remaining == 0U) {
+    //         enroll_done = true;
+    //         break;
+    //     }
+    //      LOG_DEBUG("after if");
+    //     sensor_wait_finger_not_present(chain, 0);
     }
     LOG_DEBUG("before remaining");
 
@@ -139,7 +150,7 @@ fpc_bep_result_t sensor_wait_finger_present(HCP_comm_t *chain, uint16_t timeout)
     chain->phy_rx_timeout = timeout;
     bep_result = bmlite_send_cmd_arg(chain, CMD_WAIT, ARG_FINGER_DOWN, ARG_TIMEOUT, &timeout, sizeof(timeout));
     chain->phy_rx_timeout = prev_timeout;
-    bmlite_on_finish_capture();
+  //  bmlite_on_finish_capture();
 
     return bep_result;
 }
@@ -165,15 +176,15 @@ fpc_bep_result_t bep_capture(HCP_comm_t *chain, uint16_t timeout)
     chain->phy_rx_timeout = timeout;
     for(int i=0; i< MAX_SINGLE_CAPTURE_ATTEMPTS; i++) {
         bep_result = bmlite_send_cmd_arg(chain, CMD_CAPTURE, ARG_NONE, ARG_TIMEOUT, &timeout, sizeof(timeout));
-        if(bep_result == FPC_BEP_RESULT_IO_ERROR ||
-           bep_result == FPC_BEP_RESULT_TIMEOUT) {
-            break;
-        }
+        // if(bep_result == FPC_BEP_RESULT_IO_ERROR ||
+        //    bep_result == FPC_BEP_RESULT_TIMEOUT) {
+        //     break;
+        // }
         if( !(bep_result || chain->bep_result))
             break;
     }
     chain->phy_rx_timeout = prev_timeout;
-    bmlite_on_finish_capture();
+ //   bmlite_on_finish_capture();
 
     return bep_result;
 }

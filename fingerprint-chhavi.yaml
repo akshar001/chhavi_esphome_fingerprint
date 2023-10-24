@@ -8,8 +8,8 @@
 esphome:
   name: fingerprint_chhavi
   friendly_name: fingerprint_chhavi
-  includes:
-    "custom_components/fingerprint_chhavi/fingerprint_chhavi.h"
+  # includes:
+  #   "custom_components/fingerprint_chhavi/fingerprint_chhavi.h"
 
 esp32:
   board: esp32dev
@@ -36,21 +36,21 @@ logger:
 # Enable Home Assistant API
 api:
   password: "chhavi"
-  port: 6053
+ # port: 6053
   encryption:
     key: "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs="
-  services:
-  # - service: enroll
-  #   variables:
-  #     finger_id: int
-  #     num_scans: int
+  # services:
+  # # - service: enroll
+  # #   variables:
+  # #     finger_id: int
+  # #     num_scans: int
+  # #   then:
+  # #     - fingerprint_chhavi_enroll:
+  # # - service: identify_finger
+  # #   then:
+  # #     - fingerprint_chhavi_identify: {}
+  # - service: version
   #   then:
-  #     - fingerprint_chhavi_enroll:
-  # - service: identify_finger
-  #   then:
-  #     - fingerprint_chhavi_identify: {}
-  - service: version
-    then:
   #     - fingerprint_chhavi_version: {}
   # - service: wait_for_finger
   #   then:
@@ -68,13 +68,20 @@ ota:
   password: "29cd5745fd9440bdb1a550cc95240b0a"
 
 wifi:
-  ssid: "OnePlus 10 Pro 5G"
-  password: "JerryTom"
+  ssid: "JioFiber-DtFS3"
+  password: "sss3kk2aaaa4" 
+  # manual_ip:
+  #   static_ip: 192.168.0.123
+  #   gateway: 192.168.0.1
+  #   subnet: 255.255.255.0
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+
+#  Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Fingerprint-Chhavi"
-    password: "P15cXg73rGUe"
+    password: "CHHAVIVEGG"
+
+captive_portal:
 
 spi:
  - id: spi_bus
@@ -91,38 +98,51 @@ sensor:
     Chhavi_version:
       name: Version
       accuracy_decimals: 1
+      id: unique_sensor_id_ver
     on_finger_scan_matched:
       name: Template Number
-      accuracy_decimals: 1
+      id: unique_sensor_id_scan
     Delete_All:
       name: All Deleted
       accuracy_decimals: 0
+      id: unique_sensor_id_del
    
 button:
   - platform: template
     name: Enroll
+    id: unique_sensor_id_button
     on_press:
-      - lambda: |-
-          extern bool button_pressed;
-          button_pressed = true;
+      then:
+        - text_sensor.template.publish:
+            id: button_status
+            state: "Button Pressed"
+        - lambda: |-
+            extern bool button_pressed;
+            button_pressed = true;
   - platform: template 
     name: Scan and Match
+    id: unique_sensor_id_scanan
     on_press:
       - lambda: |-
           extern bool scan_pressed;
           scan_pressed = true; 
   - platform: template 
     name: Delete All
+    id: unique_sensor_id_dele
     on_press:
       - lambda: |-
           extern bool delete_pressed;
           delete_pressed = true; 
 
+
 text_sensor:
   - platform: template
     # name: fingerprint_chhavi
     id: fingerprint_state
-
+  - platform: template
+    name: "Button Status"
+    id: button_status
+    icon: "mdi:gesture-tap"
 
 fingerprint_chhavi:
   spi_id: spi_bus
@@ -143,4 +163,4 @@ fingerprint_chhavi:
     text_sensor.template.publish:
       id: fingerprint_state
       state: "Version"
-
+  
