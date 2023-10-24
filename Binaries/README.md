@@ -8,7 +8,8 @@ For Windows:
 
 2.Select the ESP32 chip and type 'develop'.
 
-3. Set following parameters:
+3.Set following parameters:
+    
      SPI SPEED : 26.7 MHz
      SPI mode : DIO
      Select DoNotChgBin
