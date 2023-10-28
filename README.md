@@ -139,7 +139,7 @@ https://esphome.io/guides/getting_started_command_line.html.
 
     • To enroll a fingerprint with a unique template ID
 
-    • Press the "Enroll" button to start the fingerprint enrollment process.
+    • Press the "Enroll" button to start the fingerprint enrollment process. After pressing the button you need to put your finger on sensor . Then remove it after 2 seconds repeat this process for three 	      times for successfull enrollment .
     
     • Once successfully enrolled, the template ID will be associated with the fingerprint.
 
