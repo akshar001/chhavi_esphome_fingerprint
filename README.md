@@ -1,5 +1,5 @@
 
-Chhavi Fingerprint Sensor with ESPHome Documentation
+Chhavi Fingerprint Sensor with Home-Assistant Documentation
 
 
 Chhavi is an open-source project that offers an ESP32-based NFC and fingerprint device. This device has a range of applications, from security systems to access control. Our goal is to provide a seamless and accessible platform for developers and enthusiasts to explore and utilize NFC and fingerprint technologies.
@@ -217,18 +217,32 @@ After the firmware upload, the Chhavi device will activate its own fallback hots
 
 ## Integrating Chhavi with Home Assistant
 
+Configuring dashboard for Chhavi
+
+1. Select Dashboards from settings.
+
+2. Create new dashboard from there by add dashboard . Add New dashboard window will be popped up . Add dashboard name and icon there and select Create.
+
+3. Once succesfully done you can access that dashboard from below home option on left side of webpage.
+   
 To integrate Chhavi with the Home Assistant server, ensure that both devices are on the same network. Follow these steps for seamless integration:
 
 1. After setting up home assistant server uploading firmware to chhavi now by accessing home assistant web page you can see that your device will be discovered by home assistant. 
 (You need to use same network connection for your home assistant server and device otherwise device will not be visible on server)
 
 2. After discovery when you select device one dialogue box will be popped up for entering encryption key and password.
+   ```bash
     encryption key : "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs="
     password: "chhavi"
-
+	```
+   
 3. Alternatively you can manually add device by going to settings-> add integration -> select esphome -> add device -> add ip as fingerprint-chhavi.local and port is as it is. (6053)
 
-4. After that you will be needed to add all of its entity to dashboard.These entity will be visible on dashboard now you can access it and give command to device .
+4. Once the device is added to integrations , you need to select that device and select Configure option . Select checkbox of "Allow services calls" .
+
+5. Open Device from integrations (if multiple devices are detected select your device)and add all entities to your dashboard.
+
+6. These entity will be visible on dashboard now you can access it and give commands to device .
    
 ## Additional Resources
 
