@@ -178,7 +178,6 @@ void FingerprintChhaviComponent::setup() {
     
     
     ret = spi_bus_initialize(FPC_HOST, &buscfg, DMA_CHAN);
-    ESP_ERROR_CHECK(ret);
     ret = spi_bus_add_device(FPC_HOST, &devcfg, &spi_test);
     ESP_ERROR_CHECK(ret);
   //  esp_err_t ret;
