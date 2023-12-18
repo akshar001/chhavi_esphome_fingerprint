@@ -8,6 +8,12 @@ For Windows:
 
 2.Select the ESP32 chip and type 'develop'.
 
+3.Set following parameters:
+    
+     SPI SPEED : 26.7 MHz
+     SPI mode : DIO
+     Select DoNotChgBin
+   
 3.Upload three binary files with specific addresses. 
    
     partitions.bin : 0x8000 
@@ -35,6 +41,5 @@ After successful flash you can see logs using following commands in esphome. Nav
   Navigate to esphome directory .
    ```bash
     esphome logs fingerprint-chhavi.yaml 
-```
-
-  Alternatively you can access logs using serial terminal by entering COM port and baudrate 115200.
+   ```
+   Alternatively you can access logs using serial terminal by entering COM port and baudrate 115200.
