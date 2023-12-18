@@ -88,5 +88,8 @@
         "*.inc": "c",
         "string.h": "c",
         "bmlite_if.h": "c"
-    }
+    },
+    "docwriter.style": "Doxygen",
+    "docwriter.language": "English",
+    "docwriter.progress.trackFunctions": true
 }

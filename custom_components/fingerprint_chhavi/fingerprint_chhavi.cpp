@@ -10,6 +10,7 @@
 #include "esp_system.h"
 #include "esp32/ulp.h"
 
+//files from SDK
 extern "C"{
 
     #include "platform.h"
@@ -18,14 +19,19 @@ extern "C"{
     spi_device_handle_t spi_test;
 }
 
-static char be_version[100];
+//static char be_version[100];
 static char version_bep[100];
 static HCP_comm_t hcp_chain;
 
+//variables for home assistant update
 bool button_pressed = false;
 bool scan_pressed = false;
 bool delete_pressed = false;
+
+//nvs storage for fingerprint count
 nvs_handle_t my_handle;
+static int32_t counter = 0; // value will default to 0, if not set yet in NVS
+
 namespace esphome {
 namespace fingerprint_chhavi {
 
@@ -34,20 +40,24 @@ static fpc_bep_result_t res;
 #define exit_if_err(c) { bep_result = c; if(bep_result || chain->bep_result) goto exit; }
 #define ENABLE_PULL_UP 1
 #define DATA_BUFFER_SIZE (1024*5)
+
 static uint8_t hcp_txrx_buffer[MTU];
 static uint8_t hcp_data_buffer[DATA_BUFFER_SIZE];
 static uint32_t current_id = 10;
+
 static SemaphoreHandle_t BMLITE_IS_BUSY;
 TaskHandle_t xHandle_bmlite = NULL;
 const TickType_t xDelay = 10 * 1000 / portTICK_PERIOD_MS; 
 const gpio_num_t PIN = GPIO_NUM_9;
+
+//spi pins
 #define CONFIG_FPC_IRQ_GPIO 2
 #define CONFIG_FPC_CS_GPIO 15
 #define CONFIG_FPC_RST_GPIO 0
 #define FPC_HOST    SPI2_HOST
 #define DMA_CHAN    SPI_DMA_CH_AUTO  //FPC_H
 static uint16_t template_id = 1;
-static int32_t counter = 0; // value will default to 0, if not set yet in NVS
+
 //#define RECEIVE_TIMEOUT 10
 bool HIGH = true;
 #ifdef DEBUG
@@ -63,6 +73,11 @@ static const uint16_t CAPTURE_TIMEOUT = 3000;
 void task_fpc_bmlite();
 #define MAX_SINGLE_CAPTURE_ATTEMPTS 3
 
+/*Function for writing in nvs storage*/
+/**
+ * The function `NVS_WRITE` increments a counter, opens an NVS handle, sets a value in NVS, commits the
+ * changes, and then closes the handle.
+ */
 void FingerprintChhaviComponent::NVS_WRITE()
 {
   esp_err_t err;
@@ -81,7 +96,10 @@ void FingerprintChhaviComponent::NVS_WRITE()
        nvs_close(my_handle);
 }
 
-//Function to read data from the NVS
+/*Function for reading from nvs storage*/
+/**
+ * The function `NVS_READ` reads a value from the NVS (Non-Volatile Storage) and logs the result.
+ */
 void FingerprintChhaviComponent::NVS_READ(){
     esp_err_t err;
     err = nvs_open("storage", NVS_READWRITE, &my_handle);
@@ -105,12 +123,11 @@ void FingerprintChhaviComponent::NVS_READ(){
   nvs_close(my_handle);
 }
 
-
 void FingerprintChhaviComponent::setup() {
     ESP_LOGCONFIG(TAG,"In setup..");
     ESP_LOGCONFIG(TAG, "Setting up Chhavi Fingerprint Reader...");
   
-    esp_err_t err = nvs_flash_init();
+    esp_err_t err = nvs_flash_init(); //nvs flash initilization
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         err = nvs_flash_init();
@@ -154,7 +171,7 @@ void FingerprintChhaviComponent::setup() {
     io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     gpio_config(&io_conf);
     
-   
+    //spi bus configuration 
     spi_bus_config_t buscfg = {
     .mosi_io_num = 13,
     .miso_io_num = 12,
@@ -167,6 +184,7 @@ void FingerprintChhaviComponent::setup() {
     .data7_io_num = -1,
     .max_transfer_sz = 1000,
 };
+    //spi device configuration
     spi_device_interface_config_t devcfg = {};
         // Honestly, no clue what _CLOCK_SPEED is, so just use our own
         devcfg.clock_speed_hz = 10*1000*1000;
@@ -175,16 +193,17 @@ void FingerprintChhaviComponent::setup() {
         devcfg.spics_io_num = -1; //CS pin
         devcfg.queue_size = 7; //Not sure if needed
 
-    
-    
-    ret = spi_bus_initialize(FPC_HOST, &buscfg, DMA_CHAN);
+    //spi bus initialization
+    spi_bus_free(FPC_HOST);
+    ret = spi_bus_initialize(FPC_HOST, &buscfg, DMA_CHAN); 
     ESP_ERROR_CHECK(ret);
     ret = spi_bus_add_device(FPC_HOST, &devcfg, &spi_test);
     ESP_ERROR_CHECK(ret);
   //  esp_err_t ret;
 
     ESP_LOGCONFIG(TAG,"spi");
-    
+
+    //hcp_chain initilization 
     hcp_chain.read = platform_bmlite_spi_receive;
     hcp_chain.write = platform_bmlite_spi_send;
     hcp_chain.pkt_buffer = hcp_data_buffer;
@@ -193,7 +212,7 @@ void FingerprintChhaviComponent::setup() {
     hcp_chain.pkt_size_max = sizeof(hcp_data_buffer);
     hcp_chain.phy_rx_timeout = 2000;
      ESP_LOGCONFIG(TAG, "Setting up ..");
-    platform_init(NULL);
+    platform_init(NULL); 
     ESP_LOGCONFIG(TAG, "Setup completed..");
 }
 
@@ -202,16 +221,23 @@ void FingerprintChhaviComponent::update() {
     ESP_LOGI(TAG,"In update.."); 
     ESP_LOGCONFIG(TAG,"Total saved fingerprints = %d",counter-1);
     ESP_LOGI( TAG,"-> version.");
-    this->version();
+    this->version(); //version for firmware
  //  this->delete_all();
+    //If button pressed for enroll function 
     if(button_pressed)
     {
       ESP_LOGD(TAG,"Inside func");
       this->enroll_fingerprint();
+      //publishing state in text sensor
+       if (this->text_press_ != nullptr) {
+                this->text_press_->publish_state("Button");
+            }
+   //   delay(2000);
       ESP_LOGD(TAG,"out func");
-      button_pressed = false;
+      button_pressed = false; //set false after execution for next press
     }
 
+    //if fingerscan button is pressed call fingerpscanmatch function
     if(scan_pressed)
     {
       ESP_LOGD(TAG,"Inside func");
@@ -220,6 +246,7 @@ void FingerprintChhaviComponent::update() {
       scan_pressed = false;
     }
     
+    //If delete button is pressed call delete_all function
      if(delete_pressed)
     {
       ESP_LOGD(TAG,"Inside func");
@@ -242,12 +269,12 @@ void FingerprintChhaviComponent::update() {
 
 }
 
+
 void FingerprintChhaviComponent::dump_config() {
   ESP_LOGD(TAG, "CHHAVI_FINGERPRINT_READER:");
 }
 
-
-
+//Function for finger scan match 
 void FingerprintChhaviComponent::fingerscanmatch() {
     if(counter == 0)
     {
@@ -263,6 +290,7 @@ void FingerprintChhaviComponent::fingerscanmatch() {
             if (this->finger_scan_matched_sensor_ != nullptr) {
                 this->finger_scan_matched_sensor_->publish_state(template_d);
             }
+
             ESP_LOGI(TAG, "Identify completed");
         }
         else {
@@ -280,7 +308,7 @@ void FingerprintChhaviComponent::wait() {
    
 }
 
-
+//Delete all stored fingerprint
 void FingerprintChhaviComponent::delete_all() {
     if(counter == 0)
     {
@@ -308,6 +336,7 @@ void FingerprintChhaviComponent::delete_all() {
 
 }
 
+//Version printing
 void FingerprintChhaviComponent::version(){
    res =  bep_version(&hcp_chain, version_bep, 99);
    if(res == FPC_BEP_RESULT_OK)
@@ -321,6 +350,7 @@ void FingerprintChhaviComponent::version(){
 
 }
 
+//For enrolling finger in device
 void FingerprintChhaviComponent::enroll_fingerprint()
 {
   
@@ -336,7 +366,9 @@ void FingerprintChhaviComponent::enroll_fingerprint()
     {
       template_id = counter;
       ESP_LOGI(TAG, "-> BM-Lite - Save Template with id: %i.", template_id);
-    
+      if (this->finger_scan_matched_sensor_ != nullptr) {
+                this->finger_scan_matched_sensor_->publish_state(template_id);
+            }
          NVS_WRITE();
          template_id++;
          if (this->enrolling_binary_sensor_ != nullptr) {

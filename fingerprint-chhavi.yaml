@@ -38,7 +38,8 @@ api:
   password: "chhavi"
  # port: 6053
   encryption:
-    key: "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs="
+    key: "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs=" 
+
   # services:
   # # - service: enroll
   # #   variables:
@@ -89,10 +90,6 @@ spi:
    mosi_pin: GPIO13
    miso_pin: GPIO12
 
-# binary_sensor:
-#  - platform: fingerprint_chhavi
-#    name: fingerprint enrolling
-
 sensor:
   - platform: fingerprint_chhavi
     Chhavi_version:
@@ -106,19 +103,18 @@ sensor:
       name: All Deleted
       accuracy_decimals: 0
       id: unique_sensor_id_del
-   
+
 button:
   - platform: template
     name: Enroll
     id: unique_sensor_id_button
     on_press:
       then:
-        - text_sensor.template.publish:
-            id: button_status
-            state: "Button Pressed"
         - lambda: |-
             extern bool button_pressed;
             button_pressed = true;
+            id(fingerprint_state).publish_state("Continously put and remove your finger till you get template id on template number entity ");
+
   - platform: template 
     name: Scan and Match
     id: unique_sensor_id_scanan
@@ -137,12 +133,24 @@ button:
 
 text_sensor:
   - platform: template
-    # name: fingerprint_chhavi
+    name: fingerprint_chhavi
     id: fingerprint_state
-  - platform: template
-    name: "Button Status"
-    id: button_status
     icon: "mdi:gesture-tap"
+  #   on_value:
+  #      then:
+  #        - homeassistant.service:
+  #           service: notify.html5
+  #           data:
+  #             message: Button was pressed
+  #        - lambda:  ESP_LOGD("main", "The  text is");
+
+  # - platform: homeassistant
+  #   entity_id: button.unique_sensor_id_button
+  #   id: button_HA
+  #   icon: "mdi:gesture-tap"
+  #   on_value:
+  #      then:
+  #        - lambda:  ESP_LOGD("main", "The current text is");
 
 fingerprint_chhavi:
   spi_id: spi_bus

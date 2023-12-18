@@ -27,6 +27,7 @@ from esphome.const import (
     #CONF_SPEED,
     #CONF_STATE,
     CONF_TRIGGER_ID,
+
 )
 #from fingerprint_chhavi import HCP_comm_t
 #ODEOWNERS = ["@OnFreund", "@loongyh"]
@@ -65,6 +66,7 @@ CONFIG_FPC_RST_GPIO = 0
 # hcp_comm_instance = HCP_comm_t()
 CONF_FINGERPRINT_CHHAVI_ID = "fingerprint_chhavi_id"
 CONF_ON_DELETE = "Delete_All"
+CONF_ON_TEXT = "Fingerprint_State"
 CONF_VERSION = "Chhavi_version"
 CONF_ON_WAIT = "wait"
 spi_ns = cg.esphome_ns.namespace("spi")
@@ -187,6 +189,13 @@ CONFIG_SCHEMA = cv.All(
                 {
                     cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(
                         DeleteTrigger
+                    ),
+                }
+            ),
+            cv.Optional(CONF_ON_TEXT): automation.validate_automation(
+                {
+                    cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(
+                        EnrollmentTrigger
                     ),
                 }
             ),
@@ -447,6 +456,19 @@ async def fingerprint_chhavi_wait_for_finger(config, action_id, template_arg, ar
     await cg.register_parented(var, config[CONF_ID])
     return var
 
+@automation.register_action(
+    "Fingerprint_State",
+    EnrollmentAction,
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.use_id(FingerprintChhaviComponent),
+        }
+    ),
+)
+async def version_to_code(config, action_id, template_arg, args):
+    var = cg.new_Pvariable(action_id, template_arg)
+    await cg.register_parented(var, config[CONF_ID])
+    return var
 # FINGERPRINT_GROW_LED_CONTROL_ACTION_SCHEMA = cv.maybe_simple_value(
 #     {
 #         cv.GenerateID(): cv.use_id(FingerprintChhaviComponent),

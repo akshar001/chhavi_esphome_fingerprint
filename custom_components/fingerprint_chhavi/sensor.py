@@ -17,7 +17,7 @@ from esphome.const import (
 )
 from . import CONF_FINGERPRINT_CHHAVI_ID, FingerprintChhaviComponent
 from . import CONF_VERSION
-from . import CONF_ON_FINGER_SCAN_MATCHED, CONF_ON_DELETE
+from . import CONF_ON_FINGER_SCAN_MATCHED, CONF_ON_DELETE, CONF_ON_TEXT
 
 DEPENDENCIES = ["fingerprint_chhavi"]
 
@@ -35,6 +35,11 @@ CONFIG_SCHEMA = cv.Schema(
             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
         ),
         cv.Optional(CONF_ON_DELETE): sensor.sensor_schema(
+            icon=ICON_DATABASE,
+            accuracy_decimals=0,
+            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        ),
+        cv.Optional(CONF_ON_TEXT): sensor.sensor_schema(
             icon=ICON_DATABASE,
             accuracy_decimals=0,
             entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
@@ -84,7 +89,8 @@ async def to_code(config):
         CONF_LAST_CONFIDENCE,
         CONF_VERSION,
         CONF_ON_FINGER_SCAN_MATCHED,
-        CONF_ON_DELETE
+        CONF_ON_DELETE,
+        CONF_ON_TEXT
     ]:
         if key not in config:
             continue

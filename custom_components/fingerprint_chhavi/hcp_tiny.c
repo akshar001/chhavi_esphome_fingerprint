@@ -19,7 +19,7 @@
 #include "fpc_crc.h"
 #include "hcp_tiny.h"
 #include "bmlite_if_callbacks.h"
-#define DEBUG 1
+// #define DEBUG 
 #ifdef DEBUG
 #include <stdio.h>
 #include <stdlib.h>

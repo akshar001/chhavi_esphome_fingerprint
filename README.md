@@ -64,7 +64,7 @@ https://esphome.io/guides/getting_started_command_line.html.
 
 1. Edit the Configuration File:
 
-    • Open the fingerprint-chhavi.yaml file in a text editor.
+    • Open the fingerprint-chhavi.yaml file from project directory in a text editor.
 
     • Configuration settings for the Chhavi sensor, including pins, communication settings, and any additional options required for your specific use case.
 
@@ -199,7 +199,7 @@ For Linux:
 2. Validate the installation by checking the version of ESP-IDF using the idf.py version command.
 3. Execute the provided command with the necessary parameters to upload the binaries to the Chhavi device.
    ```bash
-    esptool.py -p /dev/ttyUSB1 -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x1000 bootloader.bin 0x8000 partition-table.bin 0x10000 firmware.bin
+    esptool.py -p /dev/ttyUSB1 -b 460800 --before default_reset --after hard_reset --chip esp32 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x1000 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin
    ```
    
 5. After successful flash you can see logs using following commands in esphome.

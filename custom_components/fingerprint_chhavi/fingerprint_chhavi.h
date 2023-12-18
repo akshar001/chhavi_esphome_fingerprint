@@ -1,3 +1,4 @@
+
 #pragma once
 #define FINGERPRINT_CHHAVI_H
 #ifdef FINGERPRINT_CHHAVI_H
@@ -35,6 +36,7 @@
 #include <stdbool.h>
 #include <functional>
 
+//Libraries for fingerprint chhavi sensor
 extern "C"{
  // #include "esphome/components/fingerprint_chhavi/fingerprint_chhavi.h"
   #include "esphome/components/fingerprint_chhavi/bmlite_if.h"
@@ -44,6 +46,7 @@ extern "C"{
 
 #define REMOVE_ID_ALL_TEMPLATES 0U
 #define FORMAT_SPIFFS_IF_FAILED true
+
 namespace esphome {
 namespace fingerprint_chhavi{
 
@@ -62,6 +65,7 @@ class FingerprintChhaviComponent : public sensor::Sensor ,public PollingComponen
   void version();
   void wait();
   void delete_all();
+  /*Functions for writing and  reading fingerprint count to nvs storage*/
   void NVS_WRITE();
   void NVS_READ();
   FingerprintChhaviComponent(spi_host_device_t spi_bus, gpio_num_t cs_pin);
@@ -82,13 +86,16 @@ class FingerprintChhaviComponent : public sensor::Sensor ,public PollingComponen
   CallbackManager<void(HCP_comm_t,uint16_t,uint16_t)> bmlite_send_cmd_callback_;
   CallbackManager<void(void)>platform_bmlite_reset_callback_;
 
+/**
+ * @brief Sets a callback function to be executed when following actions are done.
+ * @param callback The callback function to be set.
+ */
   void add_on_enrollment_done_callback(std::function<void()> callback) {
     this->enrollment_done_callback_.add(std::move(callback));
   }
 
   void sensor_wait_finger_present(std::function<void(HCP_comm_t , uint16_t )>callback){
     this->sensor_wait_finger_present_callback_.add(std::move(callback));
-  }
 
   void sensor_wait_finger_not_present(std::function<void(HCP_comm_t , uint16_t)>callback){
     this->sensor_wait_finger_not_present_callback_.add(std::move(callback));
@@ -130,7 +137,8 @@ class FingerprintChhaviComponent : public sensor::Sensor ,public PollingComponen
   void set_fingerprint_enrolling(button::Button *scan_pressed){this->scan_pressed_ = scan_pressed;}
   void set_fingerscan_matched(button::Button *button_press){this->button_pressed_ = button_press;}
   void set_fingerprint_delete(button::Button *delete_press){this->delete_pressed_ = delete_press;}
-  text_sensor::TextSensor *fingerprint_state{nullptr};
+  void send_text(text_sensor::TextSensor *text_press){this->text_press_ = text_press;}
+  
 
  protected:
 
@@ -140,6 +148,7 @@ class FingerprintChhaviComponent : public sensor::Sensor ,public PollingComponen
   int reset_pin_ = -1;
   int phy_addr_ = -1;
   int clock_speed_ = 10000000;
+  //pointer instances for actions performed on home assistant
   binary_sensor::BinarySensor *enrolling_binary_sensor_{nullptr};
   button::Button *button_pressed_{nullptr};
   button::Button *scan_pressed_{nullptr};
@@ -147,9 +156,15 @@ class FingerprintChhaviComponent : public sensor::Sensor ,public PollingComponen
   sensor::Sensor *version_sensor_{nullptr};
   sensor::Sensor *finger_scan_matched_sensor_{nullptr};
   sensor::Sensor *remove_all_sensor_{nullptr};
-
+  text_sensor::TextSensor *text_press_{nullptr};
 };
 
+/**
+ * @brief Represents a trigger for fingerprint scan matches.
+ *
+ * This trigger is activated when a fingerprint scan matches a specific criterion.
+ * It derives from the Trigger class.
+ */
 class FingerScanMatchedTrigger : public Trigger<> {
  public:
   explicit FingerScanMatchedTrigger(FingerprintChhaviComponent *parent) {
@@ -184,7 +199,14 @@ class EnrollmentDoneTrigger : public Trigger<> {
     parent->add_on_enrollment_done_callback([this]() { this->trigger(); });
   }
 };
-
+/**
+ * @brief Represents an action to initiate fingerprint enrollment.
+ *
+ * This action is responsible for triggering the enrollment process in the associated FingerprintChhaviComponent.
+ * It inherits from the Action class and is parented to a FingerprintChhaviComponent.
+ *
+ * @tparam Ts Variadic template parameters.
+ */
 template<typename... Ts> class EnrollmentAction : public Action<Ts...>, public Parented<FingerprintChhaviComponent> {
  public:
   void play(Ts... x) override {
