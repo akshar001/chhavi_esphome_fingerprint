@@ -1,9 +1,6 @@
 # external_components:
-#   - source:
-#       type: local
-#       path: custom_components
-#     components:
-#       fingerprint_chhavi
+#   - source: github://akshar001/chhavi_esphome_fingerprint
+#     components: [ "fingerprint_chhavi"]
 
 esphome:
   name: fingerprint_chhavi
@@ -19,7 +16,7 @@ esp32:
 
 web_server:
   port: 80
-  
+
 logger:
   level: DEBUG
 
@@ -36,9 +33,9 @@ logger:
 # Enable Home Assistant API
 api:
   password: "chhavi"
- # port: 6053
+  # port: 6053
   encryption:
-    key: "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs=" 
+    key: "besdMC9u8a3y+Js6wOK9oS4Lc/7a3fj4B3ShdaT/lqs="
 
   # services:
   # # - service: enroll
@@ -60,7 +57,6 @@ api:
   #   variables:
   #     version: string
 
-
   #     - text_sensor.template.publish:
   #         id: fingerprint_state
   #         state: !lambda 'return version;'
@@ -70,14 +66,13 @@ ota:
 
 wifi:
   ssid: "JioFiber-DtFS3"
-  password: "sss3kk2aaaa4" 
+  password: "sss3kk2aaaa4"
   # manual_ip:
   #   static_ip: 192.168.0.123
   #   gateway: 192.168.0.1
   #   subnet: 255.255.255.0
 
-
-#  Enable fallback hotspot (captive portal) in case wifi connection fails
+  #  Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Fingerprint-Chhavi"
     password: "CHHAVIVEGG"
@@ -85,10 +80,10 @@ wifi:
 captive_portal:
 
 spi:
- - id: spi_bus
-   clk_pin: GPIO14
-   mosi_pin: GPIO13
-   miso_pin: GPIO12
+  - id: spi_bus
+    clk_pin: GPIO14
+    mosi_pin: GPIO13
+    miso_pin: GPIO12
 
 sensor:
   - platform: fingerprint_chhavi
@@ -115,21 +110,20 @@ button:
             button_pressed = true;
             id(fingerprint_state).publish_state("Continously put and remove your finger till you get template id on template number entity ");
 
-  - platform: template 
+  - platform: template
     name: Scan and Match
     id: unique_sensor_id_scanan
     on_press:
       - lambda: |-
           extern bool scan_pressed;
-          scan_pressed = true; 
-  - platform: template 
+          scan_pressed = true;
+  - platform: template
     name: Delete All
     id: unique_sensor_id_dele
     on_press:
       - lambda: |-
           extern bool delete_pressed;
-          delete_pressed = true; 
-
+          delete_pressed = true;
 
 text_sensor:
   - platform: template
@@ -171,4 +165,3 @@ fingerprint_chhavi:
     text_sensor.template.publish:
       id: fingerprint_state
       state: "Version"
-  
