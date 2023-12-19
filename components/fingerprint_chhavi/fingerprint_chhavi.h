@@ -96,6 +96,7 @@ class FingerprintChhaviComponent : public sensor::Sensor ,public PollingComponen
 
   void sensor_wait_finger_present(std::function<void(HCP_comm_t , uint16_t )>callback){
     this->sensor_wait_finger_present_callback_.add(std::move(callback));
+  }
 
   void sensor_wait_finger_not_present(std::function<void(HCP_comm_t , uint16_t)>callback){
     this->sensor_wait_finger_not_present_callback_.add(std::move(callback));
